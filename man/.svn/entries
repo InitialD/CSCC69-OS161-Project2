@@ -1,0 +1,86 @@
+10
+
+dir
+1
+https://mathlab.utsc.utoronto.ca/svn/cscc69w15/group22/a2/man
+https://mathlab.utsc.utoronto.ca/svn/cscc69w15/group22/a2
+
+
+
+2015-02-09T16:06:56.647113Z
+1
+root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+f0ba0197-7baa-407b-a625-450ec079d95f
+
+bin
+dir
+
+testbin
+dir
+
+libc
+dir
+
+syscall
+dir
+
+toplevel
+dir
+
+misc
+dir
+
+sbin
+dir
+
+Makefile
+file
+
+
+
+
+2015-02-12T15:26:52.001460Z
+8a20b01ed1e634437efc912d2534e1c2
+2015-02-09T16:06:56.647113Z
+1
+root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+183
+
+dev
+dir
+

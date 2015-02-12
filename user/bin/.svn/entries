@@ -1,0 +1,101 @@
+10
+
+dir
+1
+https://mathlab.utsc.utoronto.ca/svn/cscc69w15/group22/a2/user/bin
+https://mathlab.utsc.utoronto.ca/svn/cscc69w15/group22/a2
+
+
+
+2015-02-09T16:06:56.647113Z
+1
+root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+f0ba0197-7baa-407b-a625-450ec079d95f
+
+cp
+dir
+
+mv
+dir
+
+mkdir
+dir
+
+cat
+dir
+
+ln
+dir
+
+false
+dir
+
+pwd
+dir
+
+sh
+dir
+
+sync
+dir
+
+rmdir
+dir
+
+Makefile
+file
+
+
+
+
+2015-02-12T15:26:58.003828Z
+05369b27f86bc0a0792031d43901f148
+2015-02-09T16:06:56.647113Z
+1
+root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+217
+
+ls
+dir
+
+rm
+dir
+
+true
+dir
+
