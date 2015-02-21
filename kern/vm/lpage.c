@@ -422,11 +422,68 @@ lpage_zerofill(struct lpage **lpret)
 int
 lpage_fault(struct lpage *lp, struct addrspace *as, int faulttype, vaddr_t va)
 {
-	(void)lp;	// suppress compiler warning until code gets written
+	/*(void)lp;	// suppress compiler warning until code gets written
 	(void)as;	// suppress compiler warning until code gets written
 	(void)faulttype;// suppress compiler warning until code gets written
 	(void)va;	// suppress compiler warning until code gets written
-	return EUNIMP;	// suppress compiler warning until code gets written
+	return EUNIMP;	// suppress compiler warning until code gets written*/
+	
+	paddr_t pa; // page address
+	off_t swa; // swap space
+	
+	/* Lock The lpage */
+	lpage_lock_and_pin(lp);
+	
+	/* Get lpage address */
+	pa = lp->lp_paddr & PAGE_FRAME;
+	
+	/* If page is not resident, check its struct for reference */
+	if (pa == INVALID_PADDR){
+		/* Get swap address from page */
+		swa = lp->lp_swapaddr;
+		
+		/*unlock page since not in memory */
+		lpage_unlock(lp);
+		
+		/*allocate on core from usermode, coremap.c line 877 */
+		pa = coremap_allocuser(lp);
+		
+		/* Now pin after it has been loaded in the kernel */
+		KASSERT(coremap_pageispinned(pa));
+		
+		/* lock the paging so no interference */
+		lock_acquire(global_paging_lock);
+		
+		/* swap page */
+		swap_pagein(pa, swa);
+		
+		/* lock the page */
+		lpage_lock(lp);
+		
+		/* Now that its lock, we can release the global lock */
+		lock_release(global_paging_lock);
+		
+		/* Assert nobody else did the pagein. */
+		KASSERT((lp->lp_paddr & PAGE_FRAME) == INVALID_PADDR);
+		lp->lp_paddr = pa;
+	}
+	
+	
+	/* check fault type here, vm.h 
+	if (faulttype != VM_FAULT_READONLY) {
+		
+	} */
+
+	/* pin page again */
+	KASSERT(coremap_pageispinned(pa));
+	
+	/* Update the TLB , coremap.c line 1207 */
+	mmu_map(as, va, pa, faulttype);
+	
+	/* unlock page */
+	lpage_unlock(lp);
+
+	return 0; //On success
 }
 
 /*
