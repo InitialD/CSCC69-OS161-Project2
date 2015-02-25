@@ -422,11 +422,6 @@ lpage_zerofill(struct lpage **lpret)
 int
 lpage_fault(struct lpage *lp, struct addrspace *as, int faulttype, vaddr_t va)
 {
-	/*(void)lp;	// suppress compiler warning until code gets written
-	(void)as;	// suppress compiler warning until code gets written
-	(void)faulttype;// suppress compiler warning until code gets written
-	(void)va;	// suppress compiler warning until code gets written
-	return EUNIMP;	// suppress compiler warning until code gets written*/
 	
 	paddr_t pa; // page address
 	off_t swa; // swap space
@@ -500,5 +495,40 @@ lpage_fault(struct lpage *lp, struct addrspace *as, int faulttype, vaddr_t va)
 void
 lpage_evict(struct lpage *lp)
 {
-	(void)lp;	// suppress compiler warning until code gets written
+	/* (void)lp;	// suppress compiler warning until code gets written 
+	Overwrite that page with nothing? like ZeroFill?*/
+	
+	paddr_t pa; // page address
+	off_t swa; // swap space
+	
+	/* Get status of the spinlock */
+	KASSERT(spinlock_do_i_hold(&lp->lp_spinlock));
+	
+	/* If we have the global page lock */
+	if (lock_do_i_hold(global_paging_lock)){
+		/* check if the page is dirty, vmprivate.h for flags */
+		if (LP_ISDIRTY(lp)){
+			/* lock the lpage */
+			lpage_lock(lp);
+			
+			/* get the page address and the frame (location)*/
+			pa = lp->lp_paddr & PAGE_FRAME;
+			
+			/* Get swap address from page */
+			swa = lp->lp_swapaddr;
+			
+			/* unlock page */
+			lpage_unlock(lp);
+			
+			/* page out, swap.c */
+			swap_pageout(pa, swa);
+		}
+		
+		/* change the page so that it isn't valid */
+		lp->lp_paddr = INVALID_PADDR;
+	}
+	/* and if we don't, just return  */
+	else {
+		return;
+	}
 }
