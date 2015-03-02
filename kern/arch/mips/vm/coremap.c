@@ -363,7 +363,22 @@ uint32_t
 page_replace(void)
 {
     // Complete this function.
-	return 0;
+	/* Using the random(), Taken logic from do_page_replace, in coremap.c */
+	uint32_t iterator = num_coremap_entries;
+	
+	/* take a random starting point */
+	uint32_t mapNum = random() % num_coremap_entries;
+	
+	/* while the entry is pinned or in the kernel*/
+	while (((coremap[mapCount].cm_pinned==1) || (coremap[mapCount].cm_kernel==1))) {
+		/* if you have no more */
+		if (iterator-- < 0){
+			break;
+		}
+		/* take another random */
+		mapNum = random() % num_coremap_entries;
+	}
+	return mapNum;
 }
 
 #else /* not OPT_RANDPAGE */
@@ -380,7 +395,31 @@ uint32_t
 page_replace(void)
 {
 	// Complete this function.
-	return 0;
+	/* Taken logic from do_page_replace, in coremap.c */
+	
+	/* get the last replaced, to increment upon */
+	uint32_t mapNum = coremap_last_replaced + 1;
+	
+	/* while the entry is pinned or in the kernel*/
+	while ((coremap[mapNum].cm_pinned==1) || (coremap[mapNum].cm_kernel==1)) {
+		
+		/* if we reach to the last replaced, skip? (default case) */
+		if (mapNum == coremap_last_replaced)
+			return 0;
+		
+		/* if it isn't the entry we are looking for, look at next */
+		if (mapNum < num_coremap_entries-1) {
+			mapNum++; //incrementer
+			
+		/* start from the beginning */
+		} else {
+			mapNum=0;
+		}
+	}
+	/* once you do not find an entry that is not in the kernel or pinned,
+	update last replaced with the last looked at*/
+	coremap_last_replaced = mapNum;
+	return mapNum;
 }
 
 #endif /* OPT_RANDPAGE */
