@@ -464,10 +464,11 @@ lpage_fault(struct lpage *lp, struct addrspace *as, int faulttype, vaddr_t va)
 	}
 	
 	
-	/* check fault type here, vm.h 
+	/* check fault type here, vm.h */
 	if (faulttype != VM_FAULT_READONLY) {
-		
-	} */
+		/* bit-wise or, either page ad */
+		lp->lp_paddr = pa | LPF_DIRTY;
+	}
 
 	/* pin page again */
 	KASSERT(coremap_pageispinned(pa));
@@ -523,9 +524,11 @@ lpage_evict(struct lpage *lp)
 			/* page out, swap.c */
 			swap_pageout(pa, swa);
 		}
-		
+		/* Don't destroy, since the space needs to be use, so mark INVALID*/
+		lpage_lock(lp);
 		/* change the page so that it isn't valid */
 		lp->lp_paddr = INVALID_PADDR;
+		lpage_unlock(lp);
 	}
 	/* and if we don't, just return  */
 	else {
